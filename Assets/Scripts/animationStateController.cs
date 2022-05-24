@@ -5,43 +5,51 @@ using UnityEngine;
 public class animationStateController : MonoBehaviour
 {
     Animator animator;
-    float velocity = 0.0f;
-    public float acceleration = 0.1f;
-    public float deceleration = 0.5f;
-    int VelocityHash;
+    int isWalkingHash;
+    int isRunningHash;
 
     // Start is called before the first frame update
     void Start()
     {
-        // set reference for animator
         animator = GetComponent<Animator>();
-
-        // increases performance
-        VelocityHash = Animator.StringToHash("Velocity");
+        isWalkingHash = Animator.StringToHash("isWalking");
+        isRunningHash = Animator.StringToHash("isRunning");
     }
 
     // Update is called once per frame
     void Update()
     {
-        // get key input from player
+        bool isRunning = animator.GetBool(isRunningHash);;
+        bool isWalking = animator.GetBool(isWalkingHash);;
         bool forwardPressed = Input.GetKey("w");
         bool runPressed = Input.GetKey("left shift");
         
-        if (forwardPressed && velocity < 1.0f)
+        // if player presses w key
+        if (!isWalking && forwardPressed)
         {
-            velocity += Time.deltaTime * acceleration;
+            // then set the isWalking boolean to be true
+            animator.SetBool(isWalkingHash, true);
         }
 
-        if (!forwardPressed && velocity > 0.0f)
+        // if player is not pressing w key
+        if (isWalking && !forwardPressed)
         {
-            velocity -= Time.deltaTime * acceleration;
+            // then set the isWalking boolean to be false
+            animator.SetBool(isWalkingHash, false);
         }
 
-        if (!forwardPressed && velocity < 0.0f)
+        // if player is walking and not running and presses left shift
+        if (!isRunning && (forwardPressed && runPressed))
         {
-            velocity = 0.0f;
+            // then set the isRunning boolean to be true
+            animator.SetBool(isRunningHash, true);
         }
 
-        animator.SetFloat(VelocityHash, velocity);
+        // if player if running and stops running or stops walking
+        if (isRunning && (!forwardPressed || !runPressed))
+        {
+            // then set the isRunning boolean to be false
+            animator.SetBool(isRunningHash, false);
+        }
     }
 }
