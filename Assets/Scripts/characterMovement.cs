@@ -18,9 +18,9 @@ public class characterMovement : MonoBehaviour
     // variables to store player input values
     bool movementPressed;
     bool runPressed;
-    Vector2 DeltaPointer;
-    public Vector2 turn;
-    public float sensitivity = .5f;
+    Vector2 lookValue;
+    public float speed = 5;
+    public float rotationSpeed = 720;
 
     // Awake is called when the script instance is being loaded
     void Awake() {
@@ -29,7 +29,7 @@ public class characterMovement : MonoBehaviour
         input.CharacterControls.Movement.performed += ctx => movementPressed = ctx.ReadValueAsButton();
         input.CharacterControls.Run.performed += ctx => runPressed = ctx.ReadValueAsButton();
         input.CharacterControls.Rotate.performed += ctx => {
-            DeltaPointer = ctx.ReadValue<Vector2>();
+            lookValue = ctx.ReadValue<Vector2>();
         };
     }
 
@@ -52,9 +52,16 @@ public class characterMovement : MonoBehaviour
     }
 
     void handleRotation() {
-        turn.x += DeltaPointer.x * sensitivity;
-        turn.y += DeltaPointer.y * sensitivity;
-        transform.localRotation = Quaternion.Euler(-turn.y, turn.x, 0);
+        Vector3 movementDirection = new Vector3(lookValue.x, 0, lookValue.y);
+        movementDirection.Normalize();
+
+        // transform.Translate(movementDirection * speed * Time.deltaTime, Space.World);
+
+        if (movementDirection != Vector3.zero) {
+            Quaternion toRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
+
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
+        }
     }
 
     void handleMovement() {
