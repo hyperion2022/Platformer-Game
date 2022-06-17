@@ -12,6 +12,9 @@ public class characterMovement : MonoBehaviour
     int isWalkingHash;
     int isRunningHash;
 
+    public Camera moveCamera;
+    public float mouseSensitivity = .001f;
+
     // variable to store the instance of the PlayerInput
     PlayerInput input;
 
@@ -19,8 +22,7 @@ public class characterMovement : MonoBehaviour
     bool movementPressed;
     bool runPressed;
     Vector2 lookValue;
-    public float speed = 5;
-    public float rotationSpeed = 720;
+    float xLook = 0;
 
     // Awake is called when the script instance is being loaded
     void Awake() {
@@ -52,16 +54,17 @@ public class characterMovement : MonoBehaviour
     }
 
     void handleRotation() {
-        Vector3 movementDirection = new Vector3(lookValue.x, 0, lookValue.y);
-        movementDirection.Normalize();
+        // xLook is a float for the up/down angle of the moveCamera, so probably 0
+        // Mouse sensitivity is also a float, but is between 0 and 1
 
-        // transform.Translate(movementDirection * speed * Time.deltaTime, Space.World);
-
-        if (movementDirection != Vector3.zero) {
-            Quaternion toRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
-
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
-        }
+        // turn whole body left and right
+        transform.Rotate(Vector3.up * lookValue.x * mouseSensitivity);
+        // turn just moveCamera up and down, negative value to un-invert it.
+        xLook -= lookValue.y * mouseSensitivity;
+        // clamp to look straight up or down, rather than behind the player
+        xLook = Mathf.Clamp(xLook, -90, 90);
+        // set rotation
+        moveCamera.transform.localRotation = Quaternion.Euler(xLook, 0f, 0f);
     }
 
     void handleMovement() {
