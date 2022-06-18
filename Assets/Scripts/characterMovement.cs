@@ -5,6 +5,11 @@ using UnityEngine.InputSystem;
 
 public class characterMovement : MonoBehaviour
 {
+    public CharacterController controller;
+    public float speed = 6f;
+    public float smooth = 10f;
+    public Camera moveCamera;
+
     // variable to store character animator component
     Animator animator;
 
@@ -12,17 +17,15 @@ public class characterMovement : MonoBehaviour
     int isWalkingHash;
     int isRunningHash;
 
-    public Camera moveCamera;
-    public float mouseSensitivity = .001f;
-
     // variable to store the instance of the PlayerInput
     PlayerInput input;
 
     // variables to store player input values
     bool movementPressed;
     bool runPressed;
+    bool isWalking;
+    bool isRunning;
     Vector2 lookValue;
-    float xLook = 0;
 
     // Awake is called when the script instance is being loaded
     void Awake() {
@@ -49,29 +52,24 @@ public class characterMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // get parameter values from animator
+        isRunning = animator.GetBool(isRunningHash);
+        isWalking = animator.GetBool(isWalkingHash);
+
         handleMovement();
         handleRotation();
     }
 
     void handleRotation() {
-        // xLook is a float for the up/down angle of the moveCamera, so probably 0
-        // Mouse sensitivity is also a float, but is between 0 and 1
+        Vector3 direction = new Vector3(lookValue.x, 0f, lookValue.y).normalized;
 
-        // turn whole body left and right
-        transform.Rotate(Vector3.up * lookValue.x * mouseSensitivity);
-        // turn just moveCamera up and down, negative value to un-invert it.
-        xLook -= lookValue.y * mouseSensitivity;
-        // clamp to look straight up or down, rather than behind the player
-        xLook = Mathf.Clamp(xLook, -90, 90);
-        // set rotation
-        moveCamera.transform.localRotation = Quaternion.Euler(xLook, 0f, 0f);
+        if (direction.magnitude >= 0.1f && (isWalking || isRunning))
+        {
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, moveCamera.transform.eulerAngles.y, 0), Time.deltaTime * smooth);
+        }
     }
 
     void handleMovement() {
-        // get parameter values from animator
-        bool isRunning = animator.GetBool(isRunningHash);
-        bool isWalking = animator.GetBool(isWalkingHash);
-
         // start walking if movement pressed is true and not already walking
         if (movementPressed && !isWalking) {
             animator.SetBool(isWalkingHash, true);
