@@ -913,9 +913,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 1396883282}
-  speed: 6
-  smooth: 10
   moveCamera: {fileID: 490431594}
+  smooth: 10
 --- !u!143 &1396883282
 CharacterController:
   m_ObjectHideFlags: 0
