@@ -12,23 +12,23 @@ public class characterMovement : MonoBehaviour
     PlayerInput input;
 
     // variable to store optimized setter/getter parameter IDs
-    int isWalkingForwardHash;
+    int isWalkingHash;
     int isRunningHash;
 
     // variables to store player input values
-    bool movementForwardPressed;
+    bool movementPressed;
     bool runPressed;
     Vector2 lookValue;
 
     // variables to store parameter values from animator
-    bool isWalkingForward;
+    bool isWalking;
     bool isRunning;
 
     // Awake is called when the script instance is being loaded
     void Awake() {
         input = new PlayerInput();
 
-        input.CharacterControls.Movement.performed += ctx => movementForwardPressed = ctx.ReadValueAsButton();
+        input.CharacterControls.Movement.performed += ctx => movementPressed = ctx.ReadValueAsButton();
         input.CharacterControls.Run.performed += ctx => runPressed = ctx.ReadValueAsButton();
         input.CharacterControls.Rotate.performed += ctx => {
             lookValue = ctx.ReadValue<Vector2>();
@@ -42,7 +42,7 @@ public class characterMovement : MonoBehaviour
         animator = GetComponent<Animator>();
 
         // set the ID references
-        isWalkingForwardHash = Animator.StringToHash("isWalkingForward");
+        isWalkingHash = Animator.StringToHash("isWalking");
         isRunningHash = Animator.StringToHash("isRunning");
     }
 
@@ -51,7 +51,7 @@ public class characterMovement : MonoBehaviour
     {
         // get parameter values from animator
         isRunning = animator.GetBool(isRunningHash);
-        isWalkingForward = animator.GetBool(isWalkingForwardHash);
+        isWalking = animator.GetBool(isWalkingHash);
 
         handleMovement();
         handleRotation();
@@ -60,7 +60,7 @@ public class characterMovement : MonoBehaviour
     void handleRotation() {
         Vector3 direction = new Vector3(lookValue.x, 0f, lookValue.y).normalized;
 
-        if (direction.magnitude >= 0.1f && (isWalkingForward || isRunning))
+        if (direction.magnitude >= 0.1f && (isWalking || isRunning))
         {
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, moveCamera.transform.eulerAngles.y, 0), Time.deltaTime * smooth);
         }
@@ -68,22 +68,22 @@ public class characterMovement : MonoBehaviour
 
     void handleMovement() {
         // start walking if movement pressed is true and not already walking
-        if (movementForwardPressed && !isWalkingForward) {
-            animator.SetBool(isWalkingForwardHash, true);
+        if (movementPressed && !isWalking) {
+            animator.SetBool(isWalkingHash, true);
         }
 
         // stop walking if movementPressed is false and currently walking
-        if (!movementForwardPressed && isWalkingForward) {
-            animator.SetBool(isWalkingForwardHash, false);
+        if (!movementPressed && isWalking) {
+            animator.SetBool(isWalkingHash, false);
         }
 
         // start running if movement pressed and run pressed is true and not already running
-        if ((movementForwardPressed && runPressed) && !isRunning) {
+        if ((movementPressed && runPressed) && !isRunning) {
             animator.SetBool(isRunningHash, true);
         }
 
         // stop running if movement pressed and run pressed is false and currently running
-        if ((!movementForwardPressed || !runPressed) && isRunning) {
+        if ((!movementPressed || !runPressed) && isRunning) {
             animator.SetBool(isRunningHash, false);
         }
     }
