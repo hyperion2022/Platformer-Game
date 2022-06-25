@@ -11,25 +11,19 @@ public class characterMovement : MonoBehaviour
     Animator animator;
     PlayerInput input;
 
-    // variable to store optimized setter/getter parameter IDs
-    int isWalkingHash;
-    int isRunningHash;
-
     // variables to store player input values
-    bool movementPressed;
-    bool runPressed;
+    Vector2 inputDirection;
+    Vector3 movement;
     Vector2 lookValue;
-
-    // variables to store parameter values from animator
-    bool isWalking;
-    bool isRunning;
 
     // Awake is called when the script instance is being loaded
     void Awake() {
         input = new PlayerInput();
 
-        input.CharacterControls.Movement.performed += ctx => movementPressed = ctx.ReadValueAsButton();
-        input.CharacterControls.Run.performed += ctx => runPressed = ctx.ReadValueAsButton();
+        input.CharacterControls.Movement.performed += ctx =>
+        {
+            inputDirection = ctx.ReadValue<Vector2>();
+        };
         input.CharacterControls.Rotate.performed += ctx => {
             lookValue = ctx.ReadValue<Vector2>();
         };
@@ -40,19 +34,11 @@ public class characterMovement : MonoBehaviour
     {
         // set the animator reference
         animator = GetComponent<Animator>();
-
-        // set the ID references
-        isWalkingHash = Animator.StringToHash("isWalking");
-        isRunningHash = Animator.StringToHash("isRunning");
     }
 
     // Update is called once per frame
     void Update()
     {
-        // get parameter values from animator
-        isRunning = animator.GetBool(isRunningHash);
-        isWalking = animator.GetBool(isWalkingHash);
-
         handleMovement();
         handleRotation();
     }
@@ -60,32 +46,18 @@ public class characterMovement : MonoBehaviour
     void handleRotation() {
         Vector3 direction = new Vector3(lookValue.x, 0f, lookValue.y).normalized;
 
-        if (direction.magnitude >= 0.1f && (isWalking || isRunning))
+        if (direction.magnitude >= 0.1f && movement != Vector3.zero)
         {
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, moveCamera.transform.eulerAngles.y, 0), Time.deltaTime * smooth);
         }
     }
 
     void handleMovement() {
-        // start walking if movement pressed is true and not already walking
-        if (movementPressed && !isWalking) {
-            animator.SetBool(isWalkingHash, true);
-        }
+        movement = new Vector3(inputDirection.x, inputDirection.y, 0.0f);
 
-        // stop walking if movementPressed is false and currently walking
-        if (!movementPressed && isWalking) {
-            animator.SetBool(isWalkingHash, false);
-        }
-
-        // start running if movement pressed and run pressed is true and not already running
-        if ((movementPressed && runPressed) && !isRunning) {
-            animator.SetBool(isRunningHash, true);
-        }
-
-        // stop running if movement pressed and run pressed is false and currently running
-        if ((!movementPressed || !runPressed) && isRunning) {
-            animator.SetBool(isRunningHash, false);
-        }
+        animator.SetFloat("Horizontal", movement.x);
+        animator.SetFloat("Vertical", movement.y);
+        animator.SetFloat("Magnitude", movement.magnitude);
     }
 
     void OnEnable() {
