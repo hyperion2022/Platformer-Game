@@ -24,6 +24,10 @@ public class characterMovement : MonoBehaviour
         {
             inputDirection = ctx.ReadValue<Vector2>();
         };
+        input.CharacterControls.Movement.canceled += _ =>
+        {
+            inputDirection = Vector2.zero;
+        };
         input.CharacterControls.Rotate.performed += ctx => {
             lookValue = ctx.ReadValue<Vector2>();
         };
