@@ -16,8 +16,14 @@ public class characterMovement : MonoBehaviour
     Vector3 movement;
     Vector2 lookValue;
 
+    private Vector2 currentInputVector;
+    private Vector2 smoothInputVelocity;
+    [SerializeField]
+    private float smoothInputSpeed = .2f;
+
     // Awake is called when the script instance is being loaded
-    void Awake() {
+    void Awake()
+    {
         input = new PlayerInput();
 
         input.CharacterControls.Movement.performed += ctx =>
@@ -47,7 +53,8 @@ public class characterMovement : MonoBehaviour
         handleRotation();
     }
 
-    void handleRotation() {
+    void handleRotation()
+    {
         Vector3 direction = new Vector3(lookValue.x, 0f, lookValue.y).normalized;
 
         if (direction.magnitude >= 0.1f && movement != Vector3.zero)
@@ -56,20 +63,24 @@ public class characterMovement : MonoBehaviour
         }
     }
 
-    void handleMovement() {
-        movement = new Vector3(inputDirection.x, inputDirection.y, 0.0f);
+    void handleMovement()
+    {
+        currentInputVector = Vector2.SmoothDamp(currentInputVector, inputDirection, ref smoothInputVelocity, smoothInputSpeed);
+        movement = new Vector3(currentInputVector.x, currentInputVector.y, 0.0f);
 
         animator.SetFloat("Horizontal", movement.x);
         animator.SetFloat("Vertical", movement.y);
-        animator.SetFloat("Magnitude", movement.magnitude);
     }
 
-    void OnEnable() {
+
+    void OnEnable()
+    {
         // enable the character controls action map
         input.CharacterControls.Enable();
     }
 
-    void OnDisable() {
+    void OnDisable()
+    {
         // disable the character controls action map
         input.CharacterControls.Disable();
     }
