@@ -25,12 +25,18 @@ public class characterMovement : MonoBehaviour
     // variable to store optimized setter/getter parameter IDs
     int isRunningHash;
     int isCrouchingHash;
+    int isJumpingHash;
 
     // Awake is called when the script instance is being loaded
     void Awake()
     {
         input = new PlayerInput();
 
+        input.CharacterControls.Movement.started += ctx =>
+        {
+            // read WASD as Vector2
+            inputDirection = ctx.ReadValue<Vector2>();
+        };
         input.CharacterControls.Movement.performed += ctx =>
         {
             // read WASD as Vector2
@@ -41,12 +47,12 @@ public class characterMovement : MonoBehaviour
             // no input => no movement
             inputDirection = Vector2.zero;
         };
-        input.CharacterControls.Rotate.performed += ctx =>
+        input.CharacterControls.Rotate.started += ctx =>
         {
             // read Mouse Position as Vector2
             lookValue = ctx.ReadValue<Vector2>();
         };
-        input.CharacterControls.Run.performed += ctx =>
+        input.CharacterControls.Run.started += ctx =>
         {
             // if crouching, uncrouch
             if (animator.GetBool(isCrouchingHash))
@@ -61,12 +67,28 @@ public class characterMovement : MonoBehaviour
             // stop running
             animator.SetBool(isRunningHash, false);
         };
-        input.CharacterControls.Crouch.performed += ctx =>
+        input.CharacterControls.Crouch.started += ctx =>
         {
             // if not running, crouch or uncrouch
             if (!animator.GetBool(isRunningHash))
             {
                 animator.SetBool(isCrouchingHash, !animator.GetBool(isCrouchingHash));
+            }
+        };
+        input.CharacterControls.Jump.started += ctx =>
+        {
+            // if grounded, jump
+            if (controller.isGrounded)
+            {
+                animator.SetBool(isJumpingHash, true);
+                // controller.Move(movement * Time.deltaTime * 5.0f);
+            }
+        };
+        input.CharacterControls.Jump.canceled += ctx =>
+        {
+            if (controller.isGrounded)
+            {
+                animator.SetBool(isJumpingHash, false);
             }
         };
     }
@@ -80,6 +102,7 @@ public class characterMovement : MonoBehaviour
         // set the ID references
         isRunningHash = Animator.StringToHash("isRunning");
         isCrouchingHash = Animator.StringToHash("isCrouching");
+        isJumpingHash = Animator.StringToHash("isJumping");
     }
 
     // Update is called once per frame
