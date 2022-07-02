@@ -194,6 +194,54 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 }
             ]
+        },
+        {
+            ""name"": ""LookCameraControls"",
+            ""id"": ""d1111bd9-e5d9-4311-a326-fb8e56de723d"",
+            ""actions"": [
+                {
+                    ""name"": ""Rotate"",
+                    ""type"": ""Value"",
+                    ""id"": ""eb9916e2-1e76-498a-92be-3727c2b3934d"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Look"",
+                    ""type"": ""Button"",
+                    ""id"": ""8aa0e5e7-efea-4bb8-b91d-08bd2c31bcbf"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""ec963549-5a86-4a71-8111-207762e690bc"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6af05606-c185-4a2d-a999-e1aaff470ec0"",
+                    ""path"": ""<Keyboard>/l"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Look"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -206,6 +254,10 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_CharacterControls_Look = m_CharacterControls.FindAction("Look", throwIfNotFound: true);
         m_CharacterControls_Crouch = m_CharacterControls.FindAction("Crouch", throwIfNotFound: true);
         m_CharacterControls_Jump = m_CharacterControls.FindAction("Jump", throwIfNotFound: true);
+        // LookCameraControls
+        m_LookCameraControls = asset.FindActionMap("LookCameraControls", throwIfNotFound: true);
+        m_LookCameraControls_Rotate = m_LookCameraControls.FindAction("Rotate", throwIfNotFound: true);
+        m_LookCameraControls_Look = m_LookCameraControls.FindAction("Look", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -334,6 +386,47 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         }
     }
     public CharacterControlsActions @CharacterControls => new CharacterControlsActions(this);
+
+    // LookCameraControls
+    private readonly InputActionMap m_LookCameraControls;
+    private ILookCameraControlsActions m_LookCameraControlsActionsCallbackInterface;
+    private readonly InputAction m_LookCameraControls_Rotate;
+    private readonly InputAction m_LookCameraControls_Look;
+    public struct LookCameraControlsActions
+    {
+        private @PlayerInput m_Wrapper;
+        public LookCameraControlsActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Rotate => m_Wrapper.m_LookCameraControls_Rotate;
+        public InputAction @Look => m_Wrapper.m_LookCameraControls_Look;
+        public InputActionMap Get() { return m_Wrapper.m_LookCameraControls; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(LookCameraControlsActions set) { return set.Get(); }
+        public void SetCallbacks(ILookCameraControlsActions instance)
+        {
+            if (m_Wrapper.m_LookCameraControlsActionsCallbackInterface != null)
+            {
+                @Rotate.started -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnRotate;
+                @Rotate.performed -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnRotate;
+                @Rotate.canceled -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnRotate;
+                @Look.started -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnLook;
+                @Look.performed -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnLook;
+                @Look.canceled -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnLook;
+            }
+            m_Wrapper.m_LookCameraControlsActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @Rotate.started += instance.OnRotate;
+                @Rotate.performed += instance.OnRotate;
+                @Rotate.canceled += instance.OnRotate;
+                @Look.started += instance.OnLook;
+                @Look.performed += instance.OnLook;
+                @Look.canceled += instance.OnLook;
+            }
+        }
+    }
+    public LookCameraControlsActions @LookCameraControls => new LookCameraControlsActions(this);
     public interface ICharacterControlsActions
     {
         void OnMovement(InputAction.CallbackContext context);
@@ -342,5 +435,10 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         void OnLook(InputAction.CallbackContext context);
         void OnCrouch(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
+    }
+    public interface ILookCameraControlsActions
+    {
+        void OnRotate(InputAction.CallbackContext context);
+        void OnLook(InputAction.CallbackContext context);
     }
 }

@@ -6,8 +6,8 @@ using UnityEngine.InputSystem;
 public class characterMovement : MonoBehaviour
 {
     public CharacterController controller;
-    public Camera moveCamera;
-    public float smoothRotation = 10f;
+    public Camera activeCamera;
+    [SerializeField] private GameObject[] _vCams = new GameObject[2];
     Animator animator;
     PlayerInput input;
 
@@ -17,6 +17,7 @@ public class characterMovement : MonoBehaviour
     Vector2 lookValue;
 
     // smooth dampening variables
+    public float smoothRotation = 10f;
     private Vector2 currentInputVector;
     private Vector2 smoothInputVelocity;
     [SerializeField]
@@ -86,10 +87,18 @@ public class characterMovement : MonoBehaviour
         };
         input.CharacterControls.Jump.canceled += ctx =>
         {
+            // if grounded, stop jumping
             if (controller.isGrounded)
             {
                 animator.SetBool(isJumpingHash, false);
             }
+        };
+        input.CharacterControls.Look.started += ctx =>
+        {
+            // activate/deactivate main camera
+            // _vCams[0] -> move camera, _vCams[1] -> look camera
+            _vCams[0].SetActive(!_vCams[0].activeSelf);
+            _vCams[1].SetActive(!_vCams[0].activeSelf);
         };
     }
 
@@ -130,7 +139,7 @@ public class characterMovement : MonoBehaviour
         // if player is moving, change direction using the mouse
         if (direction.magnitude >= 0.1f && movement != Vector3.zero)
         {
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, moveCamera.transform.eulerAngles.y, 0), Time.deltaTime * smoothRotation);
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, activeCamera.transform.eulerAngles.y, 0), Time.deltaTime * smoothRotation);
         }
     }
 
