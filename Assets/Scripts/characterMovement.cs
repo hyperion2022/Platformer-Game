@@ -5,28 +5,28 @@ using UnityEngine.InputSystem;
 
 public class characterMovement : MonoBehaviour
 {
-    public CharacterController controller;
-    public Camera activeCamera;
+    [SerializeField] private CharacterController controller;
+    [SerializeField] private Camera activeCamera;
     [SerializeField] private GameObject[] _vCams = new GameObject[2];
-    Animator animator;
-    PlayerInput input;
+    [SerializeField] private float smoothRotation = 10f;
+    [SerializeField] private float smoothInputSpeed = .2f;
+
+    private Animator animator;
+    private PlayerInput input;
 
     // variables to store player input values
-    Vector2 inputDirection;
-    Vector3 movement;
-    Vector2 lookValue;
+    private Vector2 inputDirection;
+    private Vector3 movement;
+    private Vector2 lookValue;
 
     // smooth dampening variables
-    public float smoothRotation = 10f;
     private Vector2 currentInputVector;
     private Vector2 smoothInputVelocity;
-    [SerializeField]
-    private float smoothInputSpeed = .2f;
 
     // variable to store optimized setter/getter parameter IDs
-    int isRunningHash;
-    int isCrouchingHash;
-    int isJumpingHash;
+    private int isRunningHash;
+    private int isCrouchingHash;
+    private int isJumpingHash;
 
     // Awake is called when the script instance is being loaded
     void Awake()
