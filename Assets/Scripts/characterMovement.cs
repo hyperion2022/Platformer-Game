@@ -5,14 +5,22 @@ using UnityEngine.InputSystem;
 
 public class characterMovement : MonoBehaviour
 {
-    [SerializeField] private CharacterController controller;
     [SerializeField] private Camera activeCamera;
     [SerializeField] private GameObject[] _vCams = new GameObject[2];
     [SerializeField] private float smoothRotation = 10f;
     [SerializeField] private float smoothInputSpeed = .2f;
+    [SerializeField] private float jumpSpeed;
+    [SerializeField] private float jumpButtonGracePeriod;
 
     private Animator animator;
+    private CharacterController characterController;
     private PlayerInput input;
+    private float ySpeed;
+    private float originalStepOffset;
+    private float? lastGroundedTime;
+    private float? jumpButtonPressedTime;
+    private bool isJumping;
+    private bool isGrounded;
 
     // variables to store player input values
     private Vector2 inputDirection;
@@ -26,7 +34,6 @@ public class characterMovement : MonoBehaviour
     // variable to store optimized setter/getter parameter IDs
     private int isRunningHash;
     private int isCrouchingHash;
-    private int isJumpingHash;
 
     // Awake is called when the script instance is being loaded
     void Awake()
@@ -39,7 +46,7 @@ public class characterMovement : MonoBehaviour
             inputDirection = ctx.ReadValue<Vector2>();
         };
         input.CharacterControls.Movement.performed += ctx =>
-        {
+        { 
             // read WASD as Vector2
             inputDirection = ctx.ReadValue<Vector2>();
         };
@@ -78,20 +85,7 @@ public class characterMovement : MonoBehaviour
         };
         input.CharacterControls.Jump.started += ctx =>
         {
-            // if grounded, jump
-            if (controller.isGrounded)
-            {
-                animator.SetBool(isJumpingHash, true);
-                // controller.Move(movement * Time.deltaTime * 5.0f);
-            }
-        };
-        input.CharacterControls.Jump.canceled += ctx =>
-        {
-            // if grounded, stop jumping
-            if (controller.isGrounded)
-            {
-                animator.SetBool(isJumpingHash, false);
-            }
+            jumpButtonPressedTime = Time.time;
         };
         input.CharacterControls.Look.started += ctx =>
         {
@@ -107,11 +101,12 @@ public class characterMovement : MonoBehaviour
     {
         // set the animator reference
         animator = GetComponent<Animator>();
+        characterController = GetComponent<CharacterController>();
+        originalStepOffset = characterController.stepOffset;
 
         // set the ID references
         isRunningHash = Animator.StringToHash("isRunning");
         isCrouchingHash = Animator.StringToHash("isCrouching");
-        isJumpingHash = Animator.StringToHash("isJumping");
     }
 
     // Update is called once per frame
@@ -130,6 +125,44 @@ public class characterMovement : MonoBehaviour
         // set parameter values in animator
         animator.SetFloat("Horizontal", movement.x);
         animator.SetFloat("Vertical", movement.y);
+
+        ySpeed += Physics.gravity.y;
+
+        if (characterController.isGrounded)
+        {
+            lastGroundedTime = Time.time;
+        }
+
+        if (Time.time - lastGroundedTime <= jumpButtonGracePeriod)
+        {
+            characterController.stepOffset = originalStepOffset;
+            ySpeed = -0.5f;
+            animator.SetBool("isGrounded", true);
+            isGrounded = true;
+            animator.SetBool("isJumping", false);
+            isJumping = false;
+            animator.SetBool("isFalling", false);
+
+            if (Time.time - jumpButtonPressedTime <= jumpButtonGracePeriod)
+            {
+                ySpeed = jumpSpeed;
+                animator.SetBool("isJumping", true);
+                isJumping = true;
+                jumpButtonPressedTime = null;
+                lastGroundedTime = null;
+            }
+        }
+        else
+        {
+            characterController.stepOffset = 0;
+            animator.SetBool("isGrounded", false);
+            isGrounded = false;
+
+            if ((isJumping && ySpeed < 0) || ySpeed < -2)
+            {
+                animator.SetBool("isFalling", true);
+            }
+        }
     }
 
     void handleRotation()
