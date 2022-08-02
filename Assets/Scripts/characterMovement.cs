@@ -77,10 +77,23 @@ public class characterMovement : MonoBehaviour
         };
         input.CharacterControls.Look.started += ctx =>
         {
-            // activate/deactivate main camera
+            // deactivate main camera
             // _vCams[0] -> move camera, _vCams[1] -> look camera
-            _vCams[0].SetActive(!_vCams[0].activeSelf);
-            _vCams[1].SetActive(!_vCams[0].activeSelf);
+            _vCams[0].SetActive(false);
+            _vCams[1].SetActive(true);
+
+            input.CharacterControls.Disable();
+            input.LookCameraControls.Enable();
+        };
+        input.LookCameraControls.Exit.started += ctx =>
+        {
+            // activate main camera
+            // _vCams[0] -> move camera, _vCams[1] -> look camera
+            _vCams[1].SetActive(false);
+            _vCams[0].SetActive(true);
+
+            input.LookCameraControls.Disable();
+            input.CharacterControls.Enable();
         };
     }
 

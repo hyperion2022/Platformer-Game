@@ -71,15 +71,6 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Jump"",
-                    ""type"": ""Button"",
-                    ""id"": ""5cc176ec-99d9-4696-929e-e7309ca298ef"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -181,17 +172,6 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""ae115dc4-d014-451a-9a1e-1e51824667cc"",
-                    ""path"": ""<Keyboard>/space"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Jump"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -209,7 +189,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Look"",
+                    ""name"": ""Exit"",
                     ""type"": ""Button"",
                     ""id"": ""8aa0e5e7-efea-4bb8-b91d-08bd2c31bcbf"",
                     ""expectedControlType"": ""Button"",
@@ -237,7 +217,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Look"",
+                    ""action"": ""Exit"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -253,11 +233,10 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_CharacterControls_Rotate = m_CharacterControls.FindAction("Rotate", throwIfNotFound: true);
         m_CharacterControls_Look = m_CharacterControls.FindAction("Look", throwIfNotFound: true);
         m_CharacterControls_Crouch = m_CharacterControls.FindAction("Crouch", throwIfNotFound: true);
-        m_CharacterControls_Jump = m_CharacterControls.FindAction("Jump", throwIfNotFound: true);
         // LookCameraControls
         m_LookCameraControls = asset.FindActionMap("LookCameraControls", throwIfNotFound: true);
         m_LookCameraControls_Rotate = m_LookCameraControls.FindAction("Rotate", throwIfNotFound: true);
-        m_LookCameraControls_Look = m_LookCameraControls.FindAction("Look", throwIfNotFound: true);
+        m_LookCameraControls_Exit = m_LookCameraControls.FindAction("Exit", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -322,7 +301,6 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_CharacterControls_Rotate;
     private readonly InputAction m_CharacterControls_Look;
     private readonly InputAction m_CharacterControls_Crouch;
-    private readonly InputAction m_CharacterControls_Jump;
     public struct CharacterControlsActions
     {
         private @PlayerInput m_Wrapper;
@@ -332,7 +310,6 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         public InputAction @Rotate => m_Wrapper.m_CharacterControls_Rotate;
         public InputAction @Look => m_Wrapper.m_CharacterControls_Look;
         public InputAction @Crouch => m_Wrapper.m_CharacterControls_Crouch;
-        public InputAction @Jump => m_Wrapper.m_CharacterControls_Jump;
         public InputActionMap Get() { return m_Wrapper.m_CharacterControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -357,9 +334,6 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Crouch.started -= m_Wrapper.m_CharacterControlsActionsCallbackInterface.OnCrouch;
                 @Crouch.performed -= m_Wrapper.m_CharacterControlsActionsCallbackInterface.OnCrouch;
                 @Crouch.canceled -= m_Wrapper.m_CharacterControlsActionsCallbackInterface.OnCrouch;
-                @Jump.started -= m_Wrapper.m_CharacterControlsActionsCallbackInterface.OnJump;
-                @Jump.performed -= m_Wrapper.m_CharacterControlsActionsCallbackInterface.OnJump;
-                @Jump.canceled -= m_Wrapper.m_CharacterControlsActionsCallbackInterface.OnJump;
             }
             m_Wrapper.m_CharacterControlsActionsCallbackInterface = instance;
             if (instance != null)
@@ -379,9 +353,6 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Crouch.started += instance.OnCrouch;
                 @Crouch.performed += instance.OnCrouch;
                 @Crouch.canceled += instance.OnCrouch;
-                @Jump.started += instance.OnJump;
-                @Jump.performed += instance.OnJump;
-                @Jump.canceled += instance.OnJump;
             }
         }
     }
@@ -391,13 +362,13 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     private readonly InputActionMap m_LookCameraControls;
     private ILookCameraControlsActions m_LookCameraControlsActionsCallbackInterface;
     private readonly InputAction m_LookCameraControls_Rotate;
-    private readonly InputAction m_LookCameraControls_Look;
+    private readonly InputAction m_LookCameraControls_Exit;
     public struct LookCameraControlsActions
     {
         private @PlayerInput m_Wrapper;
         public LookCameraControlsActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
         public InputAction @Rotate => m_Wrapper.m_LookCameraControls_Rotate;
-        public InputAction @Look => m_Wrapper.m_LookCameraControls_Look;
+        public InputAction @Exit => m_Wrapper.m_LookCameraControls_Exit;
         public InputActionMap Get() { return m_Wrapper.m_LookCameraControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -410,9 +381,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Rotate.started -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnRotate;
                 @Rotate.performed -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnRotate;
                 @Rotate.canceled -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnRotate;
-                @Look.started -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnLook;
-                @Look.performed -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnLook;
-                @Look.canceled -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnLook;
+                @Exit.started -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnExit;
+                @Exit.performed -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnExit;
+                @Exit.canceled -= m_Wrapper.m_LookCameraControlsActionsCallbackInterface.OnExit;
             }
             m_Wrapper.m_LookCameraControlsActionsCallbackInterface = instance;
             if (instance != null)
@@ -420,9 +391,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Rotate.started += instance.OnRotate;
                 @Rotate.performed += instance.OnRotate;
                 @Rotate.canceled += instance.OnRotate;
-                @Look.started += instance.OnLook;
-                @Look.performed += instance.OnLook;
-                @Look.canceled += instance.OnLook;
+                @Exit.started += instance.OnExit;
+                @Exit.performed += instance.OnExit;
+                @Exit.canceled += instance.OnExit;
             }
         }
     }
@@ -434,11 +405,10 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         void OnRotate(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
         void OnCrouch(InputAction.CallbackContext context);
-        void OnJump(InputAction.CallbackContext context);
     }
     public interface ILookCameraControlsActions
     {
         void OnRotate(InputAction.CallbackContext context);
-        void OnLook(InputAction.CallbackContext context);
+        void OnExit(InputAction.CallbackContext context);
     }
 }
