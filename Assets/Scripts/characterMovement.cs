@@ -119,7 +119,7 @@ public class characterMovement : MonoBehaviour
         Vector3 direction = new Vector3(lookValue.x, 0f, lookValue.y).normalized;
 
         // if player is moving, change direction using the mouse
-        if (direction.magnitude >= 0.1f && movement != Vector3.zero)
+        if (direction.magnitude >= 0.1f && movement.magnitude > 0.1f)
         {
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, activeCamera.transform.eulerAngles.y, 0), Time.deltaTime * smoothRotation);
         }
