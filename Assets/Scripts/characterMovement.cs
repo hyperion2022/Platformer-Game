@@ -137,7 +137,6 @@ public class characterMovement : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, activeCamera.transform.eulerAngles.y, 0), Time.deltaTime * smoothRotation);
         }
     }
-
     void OnEnable()
     {
         // enable the character controls action map
@@ -148,5 +147,13 @@ public class characterMovement : MonoBehaviour
     {
         // disable the character controls action map
         input.CharacterControls.Disable();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("PickUp"))
+        {
+            other.gameObject.SetActive(false);
+        }
     }
 }
