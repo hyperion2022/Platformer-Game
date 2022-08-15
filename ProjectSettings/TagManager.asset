@@ -4,7 +4,9 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - PickUp
+  - Green Gem
+  - Silver Gem
+  - Gold Gem
   layers:
   - Default
   - TransparentFX

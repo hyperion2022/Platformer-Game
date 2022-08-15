@@ -8,6 +8,7 @@ public class characterMovement : MonoBehaviour
     [SerializeField] private Camera activeCamera;
     [SerializeField] private GameObject[] _vCams = new GameObject[2];
     [SerializeField] private float smoothRotation = 10f;
+    [SerializeField] private GameObject CurrencyText;
 
     private Animator animator;
     private CharacterController characterController;
@@ -26,6 +27,8 @@ public class characterMovement : MonoBehaviour
     // variable to store optimized setter/getter parameter IDs
     private int isRunningHash;
     private int isCrouchingHash;
+
+    CurrencyCount currencyScript;
 
     // Awake is called when the script instance is being loaded
     void Awake()
@@ -107,6 +110,8 @@ public class characterMovement : MonoBehaviour
         // set the ID references
         isRunningHash = Animator.StringToHash("isRunning");
         isCrouchingHash = Animator.StringToHash("isCrouching");
+
+        currencyScript = CurrencyText.GetComponent<CurrencyCount>();
     }
 
     // Update is called once per frame
@@ -151,9 +156,10 @@ public class characterMovement : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("PickUp"))
+        if (other.gameObject.CompareTag("Green Gem"))
         {
             other.gameObject.SetActive(false);
+            currencyScript.setCount(currencyScript.getCount() + 1);
         }
     }
 }
