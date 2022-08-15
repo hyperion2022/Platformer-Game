@@ -161,5 +161,15 @@ public class characterMovement : MonoBehaviour
             other.gameObject.SetActive(false);
             currencyScript.setCount(currencyScript.getCount() + 1);
         }
+        else if (other.gameObject.CompareTag("Silver Gem"))
+        {
+            other.gameObject.SetActive(false);
+            currencyScript.setCount(currencyScript.getCount() + 10);
+        }
+        else if (other.gameObject.CompareTag("Gold Gem"))
+        {
+            other.gameObject.SetActive(false);
+            currencyScript.setCount(currencyScript.getCount() + 50);
+        }
     }
 }
