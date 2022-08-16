@@ -9,6 +9,7 @@ public class characterMovement : MonoBehaviour
     [SerializeField] private GameObject[] _vCams = new GameObject[2];
     [SerializeField] private float smoothRotation = 10f;
     [SerializeField] private GameObject CurrencyText;
+    [SerializeField] private GameObject HealthBar;
 
     private Animator animator;
     private CharacterController characterController;
@@ -29,6 +30,7 @@ public class characterMovement : MonoBehaviour
     private int isCrouchingHash;
 
     CurrencyCount currencyScript;
+    HealthBar healthScript;
 
     // Awake is called when the script instance is being loaded
     void Awake()
@@ -112,6 +114,7 @@ public class characterMovement : MonoBehaviour
         isCrouchingHash = Animator.StringToHash("isCrouching");
 
         currencyScript = CurrencyText.GetComponent<CurrencyCount>();
+        healthScript = HealthBar.GetComponent<HealthBar>();
     }
 
     // Update is called once per frame
@@ -170,6 +173,11 @@ public class characterMovement : MonoBehaviour
         {
             other.gameObject.SetActive(false);
             currencyScript.setCount(currencyScript.getCount() + 50);
+        }
+        else if (other.gameObject.CompareTag("Bandages"))
+        {
+            other.gameObject.SetActive(false);
+            healthScript.setHealth(healthScript.getHealth() + 20);
         }
     }
 }
