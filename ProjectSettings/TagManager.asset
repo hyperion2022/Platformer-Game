@@ -7,6 +7,12 @@ TagManager:
   - Green Gem
   - Silver Gem
   - Gold Gem
+  - Medkit
+  - Energy Drink
+  - Syringe
+  - Capsule
+  - Bandages
+  - Pill Bottle
   layers:
   - Default
   - TransparentFX
