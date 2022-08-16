@@ -12,6 +12,7 @@ public class HealthBar : MonoBehaviour
 
     private Image healthBar;
     [SerializeField] TextMeshProUGUI healthText;
+    [SerializeField] TextMeshProUGUI deathText;
 
     // Start is called before the first frame update
     void Start()
@@ -34,15 +35,21 @@ public class HealthBar : MonoBehaviour
 
     public void setHealth(int value)
     {
-        if (value > 0)
-        {
-            health = value;
-        }
+        health = value;
         if (health > MAX_HEALTH)
         {
             health = MAX_HEALTH;
         }
+        if (health < 0)
+        {
+            health = 0;
+        }
         healthBar.fillAmount = (float) health / MAX_HEALTH;
         healthText.text = health.ToString() + " / " + MAX_HEALTH.ToString();
+        if (health == 0)
+        {
+            deathText.text = "You died!";
+            Time.timeScale = 0.0001f;
+        }
     }
 }

@@ -24,9 +24,10 @@ public class CurrencyCount : MonoBehaviour
 
     public void setCount(int value)
     {
-        if (value > 0)
+        count = value;
+        if (count < 0)
         {
-            count = value;
+            count = 0;
         }
         countText.text = "¢" + count.ToString();
     }

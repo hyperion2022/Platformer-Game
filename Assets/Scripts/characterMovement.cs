@@ -179,5 +179,10 @@ public class characterMovement : MonoBehaviour
             other.gameObject.SetActive(false);
             healthScript.setHealth(healthScript.getHealth() + 20);
         }
+        else if (other.gameObject.CompareTag("Medkit"))
+        {
+            other.gameObject.SetActive(false);
+            healthScript.setHealth(healthScript.getHealth() + 100);
+        }
     }
 }
