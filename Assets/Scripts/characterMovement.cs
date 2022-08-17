@@ -29,8 +29,11 @@ public class characterMovement : MonoBehaviour
     private int isRunningHash;
     private int isCrouchingHash;
 
+    // stats scripts references
     CurrencyCount currencyScript;
     HealthBar healthScript;
+
+    float timeSinceLastDangerousCollision;
 
     // Awake is called when the script instance is being loaded
     void Awake()
@@ -115,6 +118,8 @@ public class characterMovement : MonoBehaviour
 
         currencyScript = CurrencyText.GetComponent<CurrencyCount>();
         healthScript = HealthBar.GetComponent<HealthBar>();
+
+        timeSinceLastDangerousCollision = Time.time;
     }
 
     // Update is called once per frame
@@ -183,6 +188,15 @@ public class characterMovement : MonoBehaviour
         {
             other.gameObject.SetActive(false);
             healthScript.setHealth(healthScript.getHealth() + 100);
+        }
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.CompareTag("Cactus") && (Time.time - timeSinceLastDangerousCollision) > 0.5f)
+        {
+            timeSinceLastDangerousCollision = Time.time;
+            healthScript.setHealth(healthScript.getHealth() - 10);
         }
     }
 }

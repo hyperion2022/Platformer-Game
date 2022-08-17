@@ -13,6 +13,7 @@ TagManager:
   - Capsule
   - Bandages
   - Pill Bottle
+  - Cactus
   layers:
   - Default
   - TransparentFX
