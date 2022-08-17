@@ -8,9 +8,7 @@ public class GemRotator : MonoBehaviour
 	// Before rendering each frame..
 	void Update()
 	{
-		// Rotate the game object that this script is attached to by 45 in the Z axis,
-		// multiplied by deltaTime in order to make it per second
-		// rather than per frame.
+		// Rotator script adapted to the position of Gem Prefabs
 		transform.Rotate(new Vector3(0, 0, degrees) * Time.deltaTime);
 	}
 }

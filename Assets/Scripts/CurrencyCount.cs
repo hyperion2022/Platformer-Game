@@ -12,7 +12,9 @@ public class CurrencyCount : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // We start at 0 currency
         count = 0;
+        // We update the text shown on screen
         countText = GetComponent<TextMeshProUGUI>();
         countText.text = "¢" + count.ToString();
     }
@@ -25,6 +27,7 @@ public class CurrencyCount : MonoBehaviour
     public void setCount(int value)
     {
         count = value;
+        // Currency cannot be negative
         if (count < 0)
         {
             count = 0;

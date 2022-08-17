@@ -35,6 +35,8 @@ public class characterMovement : MonoBehaviour
     HealthBar healthScript;
     StaminaBar staminaScript;
 
+    // variables to store stats timing
+    private float timeOfStartRun;
     private float timeSinceLastDangerousCollision;
 
     // Awake is called when the script instance is being loaded
@@ -64,13 +66,32 @@ public class characterMovement : MonoBehaviour
         };
         input.CharacterControls.Run.started += ctx =>
         {
-            // if crouching, uncrouch
-            if (animator.GetBool(isCrouchingHash))
+            // If we have stamina
+            if (staminaScript.getStamina() > 0f)
             {
-                animator.SetBool(isCrouchingHash, false);
+                timeOfStartRun = Time.time;
+                // if crouching, uncrouch
+                if (animator.GetBool(isCrouchingHash))
+                {
+                    animator.SetBool(isCrouchingHash, false);
+                }
+                // start running
+                animator.SetBool(isRunningHash, true);
             }
-            // start running
-            animator.SetBool(isRunningHash, true);
+            else
+            {
+                // show the fatigue text on screen
+                staminaScript.setStamina(0f);
+            }
+        };
+        input.CharacterControls.Run.performed += ctx =>
+        {
+            if (staminaScript.getStamina() > 0f)
+            {
+                // update the stamina to decrease by a factor of 2.5/s
+                // we subtract the time passed since the last run started * 2.5
+                staminaScript.setStamina(staminaScript.getStamina() - (Time.time - timeOfStartRun) * 2.5f);
+            }    
         };
         input.CharacterControls.Run.canceled += ctx =>
         {
@@ -118,10 +139,10 @@ public class characterMovement : MonoBehaviour
         isRunningHash = Animator.StringToHash("isRunning");
         isCrouchingHash = Animator.StringToHash("isCrouching");
 
+        // set the stats references
         currencyScript = CurrencyText.GetComponent<CurrencyCount>();
         healthScript = HealthBar.GetComponent<HealthBar>();
         staminaScript = StaminaBar.GetComponent<StaminaBar>();
-
         timeSinceLastDangerousCollision = Time.time;
     }
 
@@ -165,38 +186,47 @@ public class characterMovement : MonoBehaviour
         input.CharacterControls.Disable();
     }
 
+
+    // for kinematic objects
     private void OnTriggerEnter(Collider other)
     {
+        // If we collide with a green gem, we add 1 to currency
         if (other.gameObject.CompareTag("Green Gem"))
         {
             other.gameObject.SetActive(false);
             currencyScript.setCount(currencyScript.getCount() + 1);
         }
+        // If we collide with a silver gem, we add 10 to currency
         else if (other.gameObject.CompareTag("Silver Gem"))
         {
             other.gameObject.SetActive(false);
             currencyScript.setCount(currencyScript.getCount() + 10);
         }
+        // If we collide with a gold gem, we add 50 to currency
         else if (other.gameObject.CompareTag("Gold Gem"))
         {
             other.gameObject.SetActive(false);
             currencyScript.setCount(currencyScript.getCount() + 50);
         }
+        // If we collide with a bandage roll, we add 20 to health
         else if (other.gameObject.CompareTag("Bandages"))
         {
             other.gameObject.SetActive(false);
             healthScript.setHealth(healthScript.getHealth() + 20);
         }
+        // If we collide with a medkit, we add 100 to health
         else if (other.gameObject.CompareTag("Medkit"))
         {
             other.gameObject.SetActive(false);
             healthScript.setHealth(healthScript.getHealth() + 100);
         }
+        // If we collide with an energy drinkl, we add 10 to stamina
         else if (other.gameObject.CompareTag("Energy Drink"))
         {
             other.gameObject.SetActive(false);
             staminaScript.setStamina(staminaScript.getStamina() + 10);
         }
+        // If we collide with a syringe, we add 50 to stamina
         else if (other.gameObject.CompareTag("Syringe"))
         {
             other.gameObject.SetActive(false);
@@ -204,8 +234,11 @@ public class characterMovement : MonoBehaviour
         }
     }
 
+    // for non-kinematic objects
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        // If we collide with a cactus and 0.5s passed since out last dangerous collision,
+        // we update the time and subtract 10 from health
         if (hit.gameObject.CompareTag("Cactus") && (Time.time - timeSinceLastDangerousCollision) > 0.5f)
         {
             timeSinceLastDangerousCollision = Time.time;

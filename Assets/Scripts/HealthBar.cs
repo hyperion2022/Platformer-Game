@@ -6,9 +6,9 @@ using UnityEngine.UI;
 
 public class HealthBar : MonoBehaviour
 {
-    private const int MAX_HEALTH = 100;
+    private const float MAX_HEALTH = 100f;
 
-    public int health = 50;
+    public float health = 50f;
 
     private Image healthBar;
     [SerializeField] TextMeshProUGUI healthText;
@@ -18,24 +18,26 @@ public class HealthBar : MonoBehaviour
     void Start()
     {
         healthBar = GetComponent<Image>();
-        healthBar.fillAmount = (float) health / MAX_HEALTH;
-        healthText.text = health.ToString() + " / " + MAX_HEALTH.ToString();
+        // We start at 100% health and show it on screen
+        healthBar.fillAmount = health / MAX_HEALTH;
+        healthText.text = ((int) health).ToString() + " / " + ((int) MAX_HEALTH).ToString();
     }
 
     // Update is called once per frame
     void Update()
     {
-        healthBar.fillAmount = (float) health / MAX_HEALTH;
+        healthBar.fillAmount = health / MAX_HEALTH;
     }
 
-    public int getHealth()
+    public float getHealth()
     {
         return health;
     }
 
-    public void setHealth(int value)
+    public void setHealth(float value)
     {
         health = value;
+        // Health cannot be negative or exceed 100%
         if (health > MAX_HEALTH)
         {
             health = MAX_HEALTH;
@@ -44,10 +46,11 @@ public class HealthBar : MonoBehaviour
         {
             health = 0;
         }
-        healthBar.fillAmount = (float) health / MAX_HEALTH;
-        healthText.text = health.ToString() + " / " + MAX_HEALTH.ToString();
+        healthBar.fillAmount = health / MAX_HEALTH;
+        healthText.text = ((int) health).ToString() + " / " + ((int) MAX_HEALTH).ToString();
         if (health == 0)
         {
+            // If health is 0, we show a death screen and stop the game
             deathText.text = "You died!";
             Time.timeScale = 0.0001f;
         }
