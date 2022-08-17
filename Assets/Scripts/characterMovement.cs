@@ -10,6 +10,7 @@ public class characterMovement : MonoBehaviour
     [SerializeField] private float smoothRotation = 10f;
     [SerializeField] private GameObject CurrencyText;
     [SerializeField] private GameObject HealthBar;
+    [SerializeField] private GameObject StaminaBar;
 
     private Animator animator;
     private CharacterController characterController;
@@ -32,8 +33,9 @@ public class characterMovement : MonoBehaviour
     // stats scripts references
     CurrencyCount currencyScript;
     HealthBar healthScript;
+    StaminaBar staminaScript;
 
-    float timeSinceLastDangerousCollision;
+    private float timeSinceLastDangerousCollision;
 
     // Awake is called when the script instance is being loaded
     void Awake()
@@ -118,6 +120,7 @@ public class characterMovement : MonoBehaviour
 
         currencyScript = CurrencyText.GetComponent<CurrencyCount>();
         healthScript = HealthBar.GetComponent<HealthBar>();
+        staminaScript = StaminaBar.GetComponent<StaminaBar>();
 
         timeSinceLastDangerousCollision = Time.time;
     }
@@ -188,6 +191,16 @@ public class characterMovement : MonoBehaviour
         {
             other.gameObject.SetActive(false);
             healthScript.setHealth(healthScript.getHealth() + 100);
+        }
+        else if (other.gameObject.CompareTag("Energy Drink"))
+        {
+            other.gameObject.SetActive(false);
+            staminaScript.setStamina(staminaScript.getStamina() + 10);
+        }
+        else if (other.gameObject.CompareTag("Syringe"))
+        {
+            other.gameObject.SetActive(false);
+            staminaScript.setStamina(staminaScript.getStamina() + 50);
         }
     }
 
