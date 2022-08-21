@@ -247,6 +247,13 @@ public class characterMovement : MonoBehaviour
             other.gameObject.SetActive(false);
             staminaScript.setStamina(staminaScript.getStamina() + 50);
         }
+        // If we collide with a capsule, we add 50 to health and 25 to stamina
+        else if (other.gameObject.CompareTag("Capsule"))
+        {
+            other.gameObject.SetActive(false);
+            healthScript.setHealth(healthScript.getHealth() + 50);
+            staminaScript.setStamina(staminaScript.getStamina() + 25);
+        }
     }
 
     // for non-kinematic objects
