@@ -66,19 +66,23 @@ public class characterMovement : MonoBehaviour
         };
         input.CharacterControls.Run.started += ctx =>
         {
-            // start running
-            consumesStamina = true;
-            
-            // if crouching, uncrouch
-            if (animator.GetBool(isCrouchingHash))
+            if (inputDirection != Vector2.zero)
             {
-                animator.SetBool(isCrouchingHash, false);
+                // start running
+                consumesStamina = true;
+            
+                // if crouching, uncrouch
+                if (animator.GetBool(isCrouchingHash))
+                {
+                    animator.SetBool(isCrouchingHash, false);
+                }
+
+                // start running
+                animator.SetBool(isRunningHash, true);
+
+                staminaScript.showFatigueMessage();
             }
-
-            // start running
-            animator.SetBool(isRunningHash, true);
-
-            staminaScript.showFatigueMessage();
+            
         };
         input.CharacterControls.Run.canceled += ctx =>
         {

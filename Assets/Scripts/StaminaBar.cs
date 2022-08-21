@@ -65,7 +65,7 @@ public class StaminaBar : MonoBehaviour
         {
             // If stamina < 1, we lock it to 0 and show the fatigue text
             stamina = 0f;
-            fatigueText.text = "Empty stamina!";
+            fatigueText.text = "Stamina depleted";
             timeOfFatigueMessage = Time.time;
         }
     }

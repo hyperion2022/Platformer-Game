@@ -51,7 +51,7 @@ public class HealthBar : MonoBehaviour
         if (health == 0)
         {
             // If health is 0, we show a death screen and stop the game
-            deathText.text = "You died!";
+            deathText.text = "YOU DIED";
             Time.timeScale = 0.0001f;
         }
     }
