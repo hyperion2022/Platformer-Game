@@ -6,9 +6,9 @@ using UnityEngine.UI;
 
 public class StaminaBar : MonoBehaviour
 {
-    private const float MAX_STAMINA = 50;
+    private const float MAX_STAMINA = 50f;
 
-    public float stamina = 25;
+    public float stamina = 25f;
     [SerializeField] TextMeshProUGUI staminaText;
     [SerializeField] TextMeshProUGUI fatigueText;
     private float timeOfFatigueMessage;
@@ -56,6 +56,11 @@ public class StaminaBar : MonoBehaviour
         }
         staminaBar.fillAmount = stamina / MAX_STAMINA;
         staminaText.text = ((int)stamina).ToString() + " / " + ((int)MAX_STAMINA).ToString();
+        showFatigueMessage();
+    }
+
+    public void showFatigueMessage()
+    {
         if (stamina < 1f)
         {
             // If stamina < 1, we lock it to 0 and show the fatigue text

@@ -34,13 +34,13 @@ public class characterMovement : MonoBehaviour
     CurrencyCount currencyScript;
     HealthBar healthScript;
     StaminaBar staminaScript;
+    private bool consumesStamina;
 
-    // variables to store stats timing
-    private float timeOfStartRun;
+    // variable to store stat timing
     private float timeSinceLastDangerousCollision;
 
     // Awake is called when the script instance is being loaded
-    void Awake()
+    private void Awake()
     {
         input = new PlayerInput();
 
@@ -66,36 +66,24 @@ public class characterMovement : MonoBehaviour
         };
         input.CharacterControls.Run.started += ctx =>
         {
-            // If we have stamina
-            if (staminaScript.getStamina() > 0f)
+            // start running
+            consumesStamina = true;
+            
+            // if crouching, uncrouch
+            if (animator.GetBool(isCrouchingHash))
             {
-                timeOfStartRun = Time.time;
-                // if crouching, uncrouch
-                if (animator.GetBool(isCrouchingHash))
-                {
-                    animator.SetBool(isCrouchingHash, false);
-                }
-                // start running
-                animator.SetBool(isRunningHash, true);
+                animator.SetBool(isCrouchingHash, false);
             }
-            else
-            {
-                // show the fatigue text on screen
-                staminaScript.setStamina(0f);
-            }
-        };
-        input.CharacterControls.Run.performed += ctx =>
-        {
-            if (staminaScript.getStamina() > 0f)
-            {
-                // update the stamina to decrease by a factor of 2.5/s
-                // we subtract the time passed since the last run started * 2.5
-                staminaScript.setStamina(staminaScript.getStamina() - (Time.time - timeOfStartRun) * 2.5f);
-            }    
+
+            // start running
+            animator.SetBool(isRunningHash, true);
+
+            staminaScript.showFatigueMessage();
         };
         input.CharacterControls.Run.canceled += ctx =>
         {
             // stop running
+            consumesStamina = false;
             animator.SetBool(isRunningHash, false);
         };
         input.CharacterControls.Crouch.started += ctx =>
@@ -129,7 +117,7 @@ public class characterMovement : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         // set the animator reference
         animator = GetComponent<Animator>();
@@ -144,16 +132,18 @@ public class characterMovement : MonoBehaviour
         healthScript = HealthBar.GetComponent<HealthBar>();
         staminaScript = StaminaBar.GetComponent<StaminaBar>();
         timeSinceLastDangerousCollision = Time.time;
+        consumesStamina = false;
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         handleMovement();
         handleRotation();
+        handleStamina();
     }
 
-    void handleMovement()
+    private void handleMovement()
     {
         // direction vector smoothening
         currentInputVector = Vector2.SmoothDamp(currentInputVector, inputDirection, ref smoothInputVelocity, smoothInputSpeed);
@@ -164,7 +154,7 @@ public class characterMovement : MonoBehaviour
         animator.SetFloat("Vertical", movement.y);
     }
 
-    void handleRotation()
+    private void handleRotation()
     {
         Vector3 direction = new Vector3(lookValue.x, 0f, lookValue.y).normalized;
 
@@ -174,6 +164,31 @@ public class characterMovement : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, activeCamera.transform.eulerAngles.y, 0), Time.deltaTime * smoothRotation);
         }
     }
+
+    private void handleStamina()
+    {
+        if (consumesStamina && staminaScript.getStamina() > 0f)
+        {
+            // update the stamina to decrease by a factor of 5
+            // we subtract the time passed since the last run started * 5
+            staminaScript.setStamina(staminaScript.getStamina() - Time.deltaTime * 5f);
+
+            if (staminaScript.getStamina() < 1f)
+            {
+                // if stamina is < 1,
+                // show the fatigue text on screen
+                staminaScript.setStamina(0f);
+            }
+        }
+        else
+        {
+            // if we don't consume stamina or we have none to consume,
+            // we stop consuming it and the running animation
+            consumesStamina = false;
+            animator.SetBool(isRunningHash, false);
+        }
+    }
+    
     void OnEnable()
     {
         // enable the character controls action map
