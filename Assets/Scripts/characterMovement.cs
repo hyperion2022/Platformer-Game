@@ -12,9 +12,9 @@ public class characterMovement : MonoBehaviour
     [SerializeField] private GameObject HealthBar;
     [SerializeField] private GameObject StaminaBar;
 
-    private Animator animator;
-    private CharacterController characterController;
-    private PlayerInput input;
+    public Animator animator;
+    public CharacterController characterController;
+    public PlayerInput input;
 
     // variables to store player input values
     private Vector2 inputDirection;
@@ -182,6 +182,8 @@ public class characterMovement : MonoBehaviour
                 // if stamina is < 1,
                 // show the fatigue text on screen
                 staminaScript.setStamina(0f);
+                // slow the character animations down -> fatigue effect
+                animator.speed = 0.65f;
             }
         }
         else
@@ -190,6 +192,11 @@ public class characterMovement : MonoBehaviour
             // we stop consuming it and the running animation
             consumesStamina = false;
             animator.SetBool(isRunningHash, false);
+            if (staminaScript.getStamina() > 1f)
+            {
+                // resume normal speed
+                animator.speed = 1f;
+            }
         }
     }
     
